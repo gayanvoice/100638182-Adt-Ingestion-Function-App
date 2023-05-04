@@ -26,14 +26,8 @@ namespace UodAdtInjectionFunctionApp
         {
             try
             {
-                var cred = new ManagedIdentityCredential("https://digitaltwins.azure.net");
-                var client = new DigitalTwinsClient(
-                new Uri(adtInstanceUrl),
-                cred,
-                new DigitalTwinsClientOptions
-                {
-                    Transport = new HttpClientTransport(singletonHttpClientInstance)
-                });
+                var cred = new DefaultAzureCredential();
+                var client = new DigitalTwinsClient(new Uri(adtInstanceUrl), cred);
 
                 if (eventGridEvent != null && eventGridEvent.Data != null)
                 {
