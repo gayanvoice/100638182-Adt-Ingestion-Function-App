@@ -18,7 +18,7 @@ namespace UodAdtInjectionFunctionApp
 {
     public static class Function
     {
-        private static readonly string adtInstanceUrl = Environment.GetEnvironmentVariable("ADT_SERVICE_URL");
+        private static readonly string adtInstanceUrl = "https://UodAzureDigitalTwins.api.uks.digitaltwins.azure.net";
         private static readonly HttpClient singletonHttpClientInstance = new HttpClient();
 
         [FunctionName("AdtInjection")]
@@ -27,7 +27,6 @@ namespace UodAdtInjectionFunctionApp
             try
             {
                 var cred = new ManagedIdentityCredential("https://digitaltwins.azure.net");
-
                 var client = new DigitalTwinsClient(
                 new Uri(adtInstanceUrl),
                 cred,
@@ -53,6 +52,5 @@ namespace UodAdtInjectionFunctionApp
             }
 
         }
-    }
     }
 }
