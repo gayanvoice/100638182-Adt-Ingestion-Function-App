@@ -23,29 +23,37 @@ namespace UodAdtInjectionFunctionApp
         [FunctionName("AdtInjection")]
         public static async Task RunAsync([EventGridTrigger]EventGridEvent eventGridEvent, ILogger log)
         {
+            if (adtInstanceUrl == null) log.LogError("Application setting \"ADT_SERVICE_URL\" not set");
 
-            var cred = new DefaultAzureCredential();
-            var client = new DigitalTwinsClient(new Uri(adtInstanceUrl), cred);
-
-            log.LogInformation($"ADT service client connection created.");
-
-            if (eventGridEvent != null && eventGridEvent.Data != null)
+            try
             {
-                log.LogInformation(eventGridEvent.Data.ToString());
+                var cred = new DefaultAzureCredential();
+                var client = new DigitalTwinsClient(new Uri(adtInstanceUrl), cred);
 
-                // <Find_device_ID_and_temperature>
-                JObject deviceMessage = (JObject)JsonConvert.DeserializeObject(eventGridEvent.Data.ToString());
-                string deviceId = "xiaomi-device-1";
-                var illuminance = deviceMessage["body"]["Illuminance"];
-                // </Find_device_ID_and_temperature>
+                log.LogInformation($"ADT service client connection created.");
 
-                log.LogInformation($"Device:{deviceId} Illuminance is:{illuminance}");
+                if (eventGridEvent != null && eventGridEvent.Data != null)
+                {
+                    log.LogInformation(eventGridEvent.Data.ToString());
 
-                // <Update_twin_with_device_temperature>
-                var updateTwinData = new JsonPatchDocument();
-                updateTwinData.AppendReplace("/Illuminance", illuminance.Value<double>());
-                await client.UpdateDigitalTwinAsync(deviceId, updateTwinData);
-                // </Update_twin_with_device_temperature>
+                    // <Find_device_ID_and_temperature>
+                    JObject deviceMessage = (JObject)JsonConvert.DeserializeObject(eventGridEvent.Data.ToString());
+                    string deviceId = "xiaomi-device-1";
+                    var illuminance = deviceMessage["body"]["Illuminance"];
+                    // </Find_device_ID_and_temperature>
+
+                    log.LogInformation($"Device:{deviceId} Illuminance is:{illuminance}");
+
+                    // <Update_twin_with_device_temperature>
+                    var updateTwinData = new JsonPatchDocument();
+                    updateTwinData.AppendReplace("/Illuminance", illuminance.Value<double>());
+                    await client.UpdateDigitalTwinAsync(deviceId, updateTwinData);
+                    // </Update_twin_with_device_temperature>
+                }
+            }
+            catch (Exception ex)
+            {
+                log.LogError($"Error in AdtInjection function: {ex.Message}");
             }
         }
     }
