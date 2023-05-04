@@ -20,7 +20,7 @@ namespace UodAdtInjectionFunctionApp
     {
         private static readonly string adtInstanceUrl = "https://100638182AzureDigitalTwins.api.uks.digitaltwins.azure.net";
 
-        [FunctionName("AdtInjection")]
+        [FunctionName("AdtInjestion")]
         public static async Task RunAsync([EventGridTrigger]EventGridEvent eventGridEvent, ILogger log)
         {
             //https://learn.microsoft.com/en-us/azure/digital-twins/how-to-ingest-iot-hub-data
