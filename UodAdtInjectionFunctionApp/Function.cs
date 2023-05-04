@@ -18,11 +18,12 @@ namespace UodAdtInjectionFunctionApp
 {
     public static class Function
     {
-        private static readonly string adtInstanceUrl = "https://UodAzureDigitalTwins.api.uks.digitaltwins.azure.net";
+        private static readonly string adtInstanceUrl = "https://100638182AzureDigitalTwins.api.uks.digitaltwins.azure.net";
 
         [FunctionName("AdtInjection")]
         public static async Task RunAsync([EventGridTrigger]EventGridEvent eventGridEvent, ILogger log)
         {
+            //https://learn.microsoft.com/en-us/azure/digital-twins/how-to-ingest-iot-hub-data
             if (adtInstanceUrl == null) log.LogError("Application setting \"ADT_SERVICE_URL\" not set");
 
             try
@@ -53,7 +54,7 @@ namespace UodAdtInjectionFunctionApp
             }
             catch (Exception ex)
             {
-                log.LogError($"Error in AdtInjection function: {ex.Message}");
+                log.LogError($"Error in ingest function: {ex.Message}");
             }
         }
     }
