@@ -47,7 +47,7 @@ namespace UodAdtInjectionFunctionApp
 
                     // <Update_twin_with_device_temperature>
                     var updateTwinData = new JsonPatchDocument();
-                    updateTwinData.AppendReplace("/Illuminance", illuminance.Value<float>());
+                    updateTwinData.AppendReplace("/Temperature", illuminance.Value<double>());
                     await client.UpdateDigitalTwinAsync(deviceId, updateTwinData);
                     // </Update_twin_with_device_temperature>
                 }
