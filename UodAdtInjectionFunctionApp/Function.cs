@@ -39,7 +39,7 @@ namespace UodAdtInjectionFunctionApp
 
                     // <Find_device_ID_and_temperature>
                     JObject deviceMessage = (JObject)JsonConvert.DeserializeObject(eventGridEvent.Data.ToString());
-                    string deviceId = "xiaomi-device-1";
+                    string deviceId = "XiaomiDevice1";
                     var illuminance = deviceMessage["body"]["Illuminance"];
                     // </Find_device_ID_and_temperature>
 
@@ -47,7 +47,7 @@ namespace UodAdtInjectionFunctionApp
 
                     // <Update_twin_with_device_temperature>
                     var updateTwinData = new JsonPatchDocument();
-                    updateTwinData.AppendReplace("/Illuminance", illuminance.Value<double>());
+                    updateTwinData.AppendReplace("/Illuminance", illuminance.Value<float>());
                     await client.UpdateDigitalTwinAsync(deviceId, updateTwinData);
                     // </Update_twin_with_device_temperature>
                 }
