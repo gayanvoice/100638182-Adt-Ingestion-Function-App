@@ -9,10 +9,11 @@ using System.Net.Http;
 using Azure.Core.Pipeline;
 using Azure.DigitalTwins.Core;
 using Azure.Identity;
-using Newtonsoft.Json.Linq;
-using Newtonsoft.Json;
+using Microsoft.AspNetCore.JsonPatch;
 using Azure;
 using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 
 namespace UodAdtInjectionFunctionApp
 {
@@ -37,16 +38,14 @@ namespace UodAdtInjectionFunctionApp
                 {
                     log.LogInformation(eventGridEvent.Data.ToString());
 
-                    JObject deviceMessage = (JObject)JsonConvert.DeserializeObject(eventGridEvent.Data.ToString());
-                    string deviceId = "XiaomiDevice1";
+                    JObject deviceMessage = (JObject) JsonConvert.DeserializeObject(eventGridEvent.Data.ToString());
+                    string deviceId = (string)deviceMessage["systemProperties"]["iothub-connection-device-id"];
                     var illuminance = deviceMessage["body"]["Illuminance"];
 
                     log.LogInformation($"Device:{deviceId} Illuminance is:{illuminance}");
-                    var updateTwinData = new JsonPatchDocument();
+                    var updateTwinData = new Azure.JsonPatchDocument();
                     updateTwinData.AppendReplace("/Illuminance", illuminance.Value<float>());
-
                     log.LogInformation($"updateTwinData: {updateTwinData.ToString()}");
-
                     await client.UpdateDigitalTwinAsync(deviceId, updateTwinData);
                 }
             }
