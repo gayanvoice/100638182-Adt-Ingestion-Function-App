@@ -28,7 +28,7 @@ namespace UodAdtInjectionFunctionApp
 
             try
             {
-                var cred = new DefaultAzureCredential();
+                ManagedIdentityCredential cred = new ManagedIdentityCredential();
                 var client = new DigitalTwinsClient(new Uri(adtInstanceUrl), cred);
 
                 log.LogInformation($"ADT service client connection created.");
