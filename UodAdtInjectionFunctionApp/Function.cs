@@ -37,19 +37,17 @@ namespace UodAdtInjectionFunctionApp
                 {
                     log.LogInformation(eventGridEvent.Data.ToString());
 
-                    // <Find_device_ID_and_temperature>
                     JObject deviceMessage = (JObject)JsonConvert.DeserializeObject(eventGridEvent.Data.ToString());
                     string deviceId = "XiaomiDevice1";
                     var illuminance = deviceMessage["body"]["Illuminance"];
-                    // </Find_device_ID_and_temperature>
 
                     log.LogInformation($"Device:{deviceId} Illuminance is:{illuminance}");
-
-                    // <Update_twin_with_device_temperature>
                     var updateTwinData = new JsonPatchDocument();
-                    updateTwinData.AppendReplace("/Temperature", illuminance.Value<double>());
+                    updateTwinData.AppendReplace("/Illuminance", illuminance.Value<float>());
+
+                    log.LogInformation($"updateTwinData: {updateTwinData.ToString()}");
+
                     await client.UpdateDigitalTwinAsync(deviceId, updateTwinData);
-                    // </Update_twin_with_device_temperature>
                 }
             }
             catch (Exception ex)
