@@ -5,32 +5,29 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.EventGrid;
 using Microsoft.Extensions.Logging;
 using Azure.Messaging.EventGrid;
-using System.Net.Http;
-using Azure.Core.Pipeline;
 using Azure.DigitalTwins.Core;
 using Azure.Identity;
-using Microsoft.AspNetCore.JsonPatch;
 using Azure;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 
-namespace UodAdtInjectionFunctionApp
+namespace AdtInjectionCameraFunctionApp
 {
-    public static class Function
+    public static class CameraFunction
     {
-        private static readonly string adtInstanceUrl = "https://100638182AzureDigitalTwins.api.uks.digitaltwins.azure.net";
+        private static readonly string adtConnectionString = Environment.GetEnvironmentVariable("ADT_CONNECTION_STRING");
 
-        [FunctionName("AdtIngestion")]
-        public static async Task RunAsync([EventGridTrigger]EventGridEvent eventGridEvent, ILogger log)
+        [FunctionName("CameraAdtIngestion")]
+        public static async Task RunAsync([EventGridTrigger] EventGridEvent eventGridEvent, ILogger log)
         {
             //https://learn.microsoft.com/en-us/azure/digital-twins/how-to-ingest-iot-hub-data
-            if (adtInstanceUrl == null) log.LogError("Application setting \"ADT_SERVICE_URL\" not set");
+            if (adtConnectionString == null) log.LogError("Application setting ADT_CONNECTION_STRING not set");
 
             try
             {
                 ManagedIdentityCredential cred = new ManagedIdentityCredential();
-                var client = new DigitalTwinsClient(new Uri(adtInstanceUrl), cred);
+                var client = new DigitalTwinsClient(new Uri(adtConnectionString), cred);
 
                 log.LogInformation($"ADT service client connection created.");
 
@@ -38,20 +35,24 @@ namespace UodAdtInjectionFunctionApp
                 {
                     log.LogInformation(eventGridEvent.Data.ToString());
 
-                    JObject deviceMessage = (JObject) JsonConvert.DeserializeObject(eventGridEvent.Data.ToString());
+                    JObject deviceMessage = (JObject)JsonConvert.DeserializeObject(eventGridEvent.Data.ToString());
                     string deviceId = (string)deviceMessage["systemProperties"]["iothub-connection-device-id"];
                     var illuminance = deviceMessage["body"]["Illuminance"];
 
                     log.LogInformation($"Device:{deviceId} Illuminance is:{illuminance}");
-                    var updateTwinData = new Azure.JsonPatchDocument();
-                    updateTwinData.AppendReplace("/Illuminance", illuminance.Value<float>());
-                    log.LogInformation($"updateTwinData: {updateTwinData.ToString()}");
-                    await client.UpdateDigitalTwinAsync(deviceId, updateTwinData);
+
+                    Azure.JsonPatchDocument jsonPatchDocument = new Azure.JsonPatchDocument();
+                    jsonPatchDocument.AppendReplace("/Illuminance", illuminance.Value<float>());
+
+                    log.LogInformation($"JsonPatchDocument: {jsonPatchDocument}");
+
+                    Response response = await client.UpdateDigitalTwinAsync(deviceId, jsonPatchDocument);
+                    log.LogInformation($"Adt {deviceId}: {response.Status} {response.Content}");
                 }
             }
             catch (Exception ex)
             {
-                log.LogError($"Error in ingest function: {ex.Message}");
+                log.LogError($"Error in CameraAdtIngestion function: {ex.Message}");
             }
         }
     }
