@@ -55,7 +55,7 @@ namespace AdtInjectionCameraFunctionApp
             }
             catch (Exception ex)
             {
-                log.LogError($"Error in BatteryAdtIngestion function: {ex.Message}");
+               // log.LogError($"Error in BatteryAdtIngestion function: {ex.Message}");
             }
         }
     }

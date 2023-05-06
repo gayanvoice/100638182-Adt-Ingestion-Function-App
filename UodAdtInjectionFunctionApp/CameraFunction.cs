@@ -52,7 +52,7 @@ namespace AdtInjectionCameraFunctionApp
             }
             catch (Exception ex)
             {
-                log.LogError($"Error in CameraAdtIngestion function: {ex.Message}");
+               // log.LogError($"Error in CameraAdtIngestion function: {ex.Message}");
             }
         }
     }
